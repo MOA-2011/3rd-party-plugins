@@ -55,21 +55,6 @@ AutoBouquetsMaker/src/Makefile
 AutoBouquetsMaker/src/scanner/Makefile
 AutoBouquetsMaker/custom/Makefile
 
-DLNABrowser/Makefile
-DLNABrowser/src/Makefile
-DLNABrowser/icons/Makefile
-DLNABrowser/meta/Makefile
-
-DLNAServer/Makefile
-DLNAServer/src/Makefile
-DLNAServer/meta/Makefile
-
-HbbTV/Makefile
-HbbTV/src/Makefile
-HbbTV/meta/Makefile
-HbbTV/po/Makefile
-
-
 OnDemand/Makefile
 OnDemand/src/Makefile
 OnDemand/src/icons/Makefile
