@@ -1,6 +1,3 @@
-# for localized messages
-from . import _
-
 from Components.ActionMap import ActionMap
 from Components.Sensors import sensors
 from Components.Sources.Sensor import SensorSource
@@ -24,7 +21,9 @@ class TempFanControl(Screen, ConfigListScreen):
 			<ePixmap pixmap="skin_default/buttons/blue.png" position="420,0" size="140,40" alphatest="on" />
 			<widget source="red" render="Label" position="0,0" zPosition="1" size="140,40" font="Regular;20" halign="center" valign="center" backgroundColor="#9f1313" transparent="1" />
 			<widget source="green" render="Label" position="140,0" zPosition="1" size="140,40" font="Regular;20" halign="center" valign="center" backgroundColor="#1f771f" transparent="1" />
-
+			<widget source="yellow" render="Label" position="280,0" zPosition="1" size="140,40" font="Regular;20" halign="center" valign="center" backgroundColor="#a08500" transparent="1" />
+			<widget source="blue" render="Label" position="420,0" zPosition="1" size="140,40" font="Regular;20" halign="center" valign="center" backgroundColor="#18188b" transparent="1" />
+			
 			<widget name="config" position="10,50" size="550,120" scrollbarMode="showOnDemand" />
 
 			<widget source="SensorTempText0" render="Label" position="10,150" zPosition="1" size="90,40" font="Regular;20" halign="left" valign="top" backgroundColor="#9f1313" transparent="1" />
@@ -105,19 +104,14 @@ class TempFanControl(Screen, ConfigListScreen):
 
 		self["red"] = StaticText(_("Cancel"))
 		self["green"] = StaticText(_("OK"))
-
+		self["yellow"] = StaticText("")
+		self["blue"] = StaticText("")	
+		
 		for count in range(8):
 			if count < tempcount:
 				id = templist[count]
-				if getBrandOEM() not in ('dags', 'vuplus'):
-					self["SensorTempText%d" % count] = StaticText(sensors.getSensorName(id))
-					self["SensorTemp%d" % count] = SensorSource(sensorid = id)
-				elif getBrandOEM() in ('dags', 'vuplus') and id < 1:
-					self["SensorTempText%d" % count] = StaticText(sensors.getSensorName(id))
-					self["SensorTemp%d" % count] = SensorSource(sensorid = id)
-				else:
-					self["SensorTempText%d" % count] = StaticText("")
-					self["SensorTemp%d" % count] = SensorSource()
+				self["SensorTempText%d" % count] = StaticText(sensors.getSensorName(id))		
+				self["SensorTemp%d" % count] = SensorSource(sensorid = id)
 			else:
 				self["SensorTempText%d" % count] = StaticText("")
 				self["SensorTemp%d" % count] = SensorSource()
@@ -132,13 +126,11 @@ class TempFanControl(Screen, ConfigListScreen):
 
 		self.list = []
 		for count in range(fancontrol.getFanCount()):
-			if getBrandOEM() not in ('dags', 'vuplus'):
-				self.list.append(getConfigListEntry(_("Fan %d voltage") % (count + 1), fancontrol.getConfig(count).vlt))
+#			self.list.append(getConfigListEntry(_("Fan %d Voltage") % (count + 1), fancontrol.getConfig(count).vlt))		# [iq]
 			self.list.append(getConfigListEntry(_("Fan %d PWM") % (count + 1), fancontrol.getConfig(count).pwm))
-			if getBrandOEM() not in ('dags', 'vuplus'):
-				self.list.append(getConfigListEntry(_("Standby fan %d voltage") % (count + 1), fancontrol.getConfig(count).vlt_standby))
-			self.list.append(getConfigListEntry(_("Standby fan %d PWM") % (count + 1), fancontrol.getConfig(count).pwm_standby))
-
+#			self.list.append(getConfigListEntry(_("Standby Fan %d Voltage") % (count + 1), fancontrol.getConfig(count).vlt_standby))		# [iq]
+			self.list.append(getConfigListEntry(_("Standby Fan %d PWM") % (count + 1), fancontrol.getConfig(count).pwm_standby))
+		
 		ConfigListScreen.__init__(self, self.list, session = self.session)
 		#self["config"].list = self.list
 		#self["config"].setList(self.list)
@@ -155,21 +147,17 @@ class TempFanControl(Screen, ConfigListScreen):
 
 	def save(self):
 		for count in range(fancontrol.getFanCount()):
-			if getBrandOEM() not in ('dags', 'vuplus'):
-				fancontrol.getConfig(count).vlt.save()
+#			fancontrol.getConfig(count).vlt.save()		# [iq]
 			fancontrol.getConfig(count).pwm.save()
-			if getBrandOEM() not in ('dags', 'vuplus'):
-				fancontrol.getConfig(count).vlt_standby.save()
+#			fancontrol.getConfig(count).vlt_standby.save()		# [iq]
 			fancontrol.getConfig(count).pwm_standby.save()
 		self.close()
 
 	def revert(self):
 		for count in range(fancontrol.getFanCount()):
-			if getBrandOEM() not in ('dags', 'vuplus'):
-				fancontrol.getConfig(count).vlt.load()
+#			fancontrol.getConfig(count).vlt.load()		# [iq]
 			fancontrol.getConfig(count).pwm.load()
-			if getBrandOEM() not in ('dags', 'vuplus'):
-				fancontrol.getConfig(count).vlt_standby.load()
+#			fancontrol.getConfig(count).vlt_standby.load()		# [iq]
 			fancontrol.getConfig(count).pwm_standby.load()
 		self.close()
 
@@ -179,10 +167,14 @@ def main(session, **kwargs):
 def startMenu(menuid):
 	if menuid != "system":
 		return []
-	return [(_("Temperature and fan control"), main, "tempfancontrol", 80)]
+	return [(_("Fan control"), main, "tempfancontrol", 80)]
 
 def Plugins(**kwargs):
-	from os import path
-	if not path.exists("/usr/lib/enigma2/python/Plugins/Extensions/FanControl2/plugin.pyo"):
-		return PluginDescriptor(name = _("Fan Control"), description = _("Temperature and Fan control"), where = PluginDescriptor.WHERE_MENU, needsRestart = False, fnc = startMenu)
-	return []
+	from Tools.HardwareInfo import HardwareInfo
+	HAVE_NOT_FAN = { "mediabox", "tmnanose", "force2" }
+
+	if HardwareInfo().get_device_name() in HAVE_NOT_FAN:
+		return []
+	else:
+		return PluginDescriptor(name = "Fan control", description = _("Fan control"), where = PluginDescriptor.WHERE_MENU, needsRestart = False, fnc = startMenu)
+
