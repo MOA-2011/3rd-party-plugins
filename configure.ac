@@ -66,5 +66,9 @@ TransCodingSetup/src/Makefile
 TransCodingSetup/meta/Makefile
 TransCodingSetup/po/Makefile
 
+RemoteChannelStreamConverter/Makefile
+RemoteChannelStreamConverter/po/Makefile
+RemoteChannelStreamConverter/src/Makefile
+
 ])
 AC_OUTPUT
