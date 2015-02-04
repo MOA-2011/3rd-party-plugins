@@ -70,8 +70,8 @@ RemoteChannelStreamConverter/Makefile
 RemoteChannelStreamConverter/po/Makefile
 RemoteChannelStreamConverter/src/Makefile
 
-SoftcamSetup/Makefile
-SoftcamSetup/po/Makefile
-SoftcamSetup/src/Makefile
 ])
 AC_OUTPUT
+#SoftcamSetup/Makefile
+#SoftcamSetup/po/Makefile
+#SoftcamSetup/src/Makefile
