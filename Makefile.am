@@ -1,3 +1,3 @@
 ACLOCAL_AMFLAGS = -I m4
 
-SUBDIRS = AutoBouquetsMaker OnDemand RemoteChannelStreamConverter SoftcamSetup
+SUBDIRS = AutoBouquetsMaker OnDemand RemoteChannelStreamConverter
