@@ -1,0 +1,11 @@
+Package: enigma2-plugin-pli-softcamsetup
+Version: 2.7+git251+918f3d2-r7
+Description: pli-softcamsetup
+ pli-softcamsetup
+Section: base
+Priority: optional
+Maintainer: OpenPLi team <info@openpli.org>
+License: GPLv2
+Architecture: mips32el
+OE: enigma2
+Depends: enigma2

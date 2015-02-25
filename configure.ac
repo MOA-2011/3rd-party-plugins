@@ -65,6 +65,24 @@ RemoteChannelStreamConverter/Makefile
 RemoteChannelStreamConverter/po/Makefile
 RemoteChannelStreamConverter/src/Makefile
 
+SoftcamSetup/Makefile
+SoftcamSetup/meta/Makefile
+SoftcamSetup/images/Makefile
+SoftcamSetup/src/Makefile
+SoftcamSetup/locale/Makefile
+SoftcamSetup/locale/cs/Makefile
+SoftcamSetup/locale/cs/LC_MESSAGES/Makefile
+SoftcamSetup/locale/de/Makefile
+SoftcamSetup/locale/de/LC_MESSAGES/Makefile
+SoftcamSetup/locale/nl/Makefile
+SoftcamSetup/locale/nl/LC_MESSAGES/Makefile
+SoftcamSetup/locale/pl/Makefile
+SoftcamSetup/locale/pl/LC_MESSAGES/Makefile
+SoftcamSetup/locale/ru/Makefile
+SoftcamSetup/locale/ru/LC_MESSAGES/Makefile
+SoftcamSetup/locale/sl/Makefile
+SoftcamSetup/locale/sl/LC_MESSAGES/Makefile
+
 ])
 AC_OUTPUT
 #SoftcamSetup/Makefile
