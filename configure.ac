@@ -61,11 +61,6 @@ OnDemand/src/icons/Makefile
 OnDemand/meta/Makefile
 OnDemand/po/Makefile
 
-TransCodingSetup/Makefile
-TransCodingSetup/src/Makefile
-TransCodingSetup/meta/Makefile
-TransCodingSetup/po/Makefile
-
 RemoteChannelStreamConverter/Makefile
 RemoteChannelStreamConverter/po/Makefile
 RemoteChannelStreamConverter/src/Makefile
