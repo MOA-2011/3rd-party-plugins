@@ -65,15 +65,6 @@ RemoteChannelStreamConverter/Makefile
 RemoteChannelStreamConverter/po/Makefile
 RemoteChannelStreamConverter/src/Makefile
 
-DLNABrowser/Makefile
-DLNABrowser/icons/Makefile
-DLNABrowser/meta/Makefile
-DLNABrowser/src/Makefile
-
-DLNAServer/Makefile
-DLNAServer/meta/Makefile
-DLNAServer/src/Makefile
-
 ])
 AC_OUTPUT
 #SoftcamSetup/Makefile
@@ -96,3 +87,11 @@ AC_OUTPUT
 #SoftcamSetup/locale/ru/LC_MESSAGES/Makefile
 #SoftcamSetup/locale/sl/Makefile
 #SoftcamSetup/locale/sl/LC_MESSAGES/Makefile
+#DLNABrowser/Makefile
+#DLNABrowser/icons/Makefile
+#DLNABrowser/meta/Makefile
+#DLNABrowser/src/Makefile
+#
+#DLNAServer/Makefile
+#DLNAServer/meta/Makefile
+#DLNAServer/src/Makefile
