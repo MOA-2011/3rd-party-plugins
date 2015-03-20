@@ -171,7 +171,7 @@ def startMenu(menuid):
 
 def Plugins(**kwargs):
 	from Tools.HardwareInfo import HardwareInfo
-	HAVE_NOT_FAN = { "mediabox", "tmnanose", "force2" }
+	HAVE_NOT_FAN = { "mediabox", "tmnanose", "force2", "tmnanoeco", "tmnanocombo", "force2solid", "force2plus" }
 
 	if HardwareInfo().get_device_name() in HAVE_NOT_FAN:
 		return []
