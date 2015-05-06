@@ -8,6 +8,7 @@ from setup import AutoBouquetsMaker_Setup, AutoBouquetsMaker_ProvidersSetup
 from hidesections import AutoBouquetsMaker_HideSections
 from keepbouquets import AutoBouquetsMaker_KeepBouquets
 from ordering import AutoBouquetsMaker_Ordering
+from deletebouquets import AutoBouquetsMaker_DeleteBouquets, AutoBouquetsMaker_DeleteMsg
 
 from Screens.Screen import Screen
 from Screens.MessageBox import MessageBox
@@ -83,6 +84,7 @@ class AutoBouquetsMaker_Menu(Screen):
 		if not config.autobouquetsmaker.keepallbouquets.value:
 			l.append(self.buildListEntry(_("Keep bouquets"), "reorder.png"))
 		l.append(self.buildListEntry(_("Start scan"), "download.png"))
+		l.append(self.buildListEntry(_("Delete bouquets"), "reorder.png"))
 		l.append(self.buildListEntry(_("Show log"), "dbinfo.png"))
 		l.append(self.buildListEntry(_("About"), "about.png"))
 		self["list"].list = l
@@ -163,10 +165,14 @@ class AutoBouquetsMaker_Menu(Screen):
 			return
 
 		if index == 6:
-			self.session.open(AutoBouquetsMaker_Log)
+			self.session.openWithCallback(AutoBouquetsMaker_DeleteBouquets, AutoBouquetsMaker_DeleteMsg)
 			return
 
 		if index == 7:
+			self.session.open(AutoBouquetsMaker_Log)
+			return
+
+		if index == 8:
 			self.session.open(AutoBouquetsMaker_About)
 			return
 
