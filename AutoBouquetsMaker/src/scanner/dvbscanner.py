@@ -6,7 +6,7 @@ from Components.config import config
 
 class DvbScanner():
 	TIMEOUT_SEC = 20
-	SDT_TIMEOUT = 20
+	SDT_TIMEOUT = 60
 
 	VIDEO_ALLOWED_TYPES = [1, 4, 5, 17, 22, 24, 25, 27, 135]
 	AUDIO_ALLOWED_TYPES = [2, 10]
@@ -124,7 +124,7 @@ class DvbScanner():
 
 		return namespace
 
-	def updateTransponders(self, transponders, read_other_section = False, customtransponders = {}, netid = None, bouquettype = None):
+	def updateTransponders(self, transponder_dict_tmp, transponders, read_other_section = False, netid = None, bouquettype = None):
 		print>>log, "[DvbScanner] Reading transponders..."
 
 		if self.nit_other_table_id == 0x00:
@@ -250,18 +250,14 @@ class DvbScanner():
 				key = "%x:%x:%x" % (transponder["transport_stream_id"], transponder["original_network_id"], transponder["service_id"])
 				hd_logical_channel_number_dict_tmp[key] = transponder
 				continue
-			customtransponder = {}
-			if len(customtransponders) > 0 and self.dvbtype == 'dvbt': # Only for DVB-T/T2 transponder override.
-				for key in range(0, len(customtransponders)):
-					if customtransponders[key]["transport_stream_id"] == transponder["transport_stream_id"]:
-						customtransponder = customtransponders[key]
-						break
-			if len(transponder) == 8 and len(customtransponder) == 0: #no custom transponer information for DVB-T2
-				#look in lamedb just in case it is already there
-				key = "%x:%x:%x" % (0xEEEE0000, transponder["transport_stream_id"], transponder["original_network_id"])
-				if key not in transponders:
-					continue
-				customtransponder = transponders[key]
+			transponder_tmp = {}
+			if len(transponder_dict_tmp) > 0 and self.dvbtype == 'dvbt': # Only for DVB-T/T2 transponder override.
+				for key in transponder_dict_tmp:
+					if transponder_dict_tmp[key]["transport_stream_id"] == transponder["transport_stream_id"]:
+						transponder_tmp = transponder_dict_tmp[key]
+			if len(transponder) == 8 and len(transponder_tmp) == 0: #no custom information for DVB-T2
+				continue
+
 			transponder["services"] = {}
 			transponder["dvb_type"] = self.dvbtype
 			transponder["bouquet_type"] = bouquettype
@@ -276,7 +272,7 @@ class DvbScanner():
 				transponder["inversion"] = transponder["fec_outer"]
 				transponder["modulation_system"] = 0
 			elif transponder["dvb_type"] == 'dvbt': # DVB-T
-				if len(customtransponder) == 0: #no override or DVB-T2 transponder
+				if len(transponder_tmp) == 0: #no override or DVB-T2 transponder
 					transponder["namespace"] = 0xEEEE0000
 					transponder["frequency"] = transponder["frequency"] * 10
 					transponder["inversion"] = 0
@@ -285,18 +281,18 @@ class DvbScanner():
 					transponder["system"] = 0
 				else:
 					transponder["namespace"] = 0xEEEE0000
-					transponder["frequency"] = customtransponder["frequency"]
-					transponder["bandwidth"] = customtransponder["bandwidth"]
-					transponder["code_rate_hp"] = customtransponder["code_rate_hp"]
-					transponder["code_rate_lp"] = customtransponder["code_rate_lp"]
-					transponder["modulation"] = customtransponder["modulation"]
-					transponder["transmission_mode"] = customtransponder["transmission_mode"]
-					transponder["guard_interval"] = customtransponder["guard_interval"]
-					transponder["hierarchy"] = customtransponder["hierarchy"]
-					transponder["inversion"] = customtransponder["inversion"]
-					transponder["flags"] = customtransponder["flags"]
-					transponder["system"] = customtransponder["system"]
-					transponder["plpid"] = customtransponder["plpid"]
+					transponder["frequency"] = transponder_tmp["frequency"]
+					transponder["bandwidth"] = transponder_tmp["bandwidth"]
+					transponder["code_rate_hp"] = transponder_tmp["code_rate_hp"]
+					transponder["code_rate_lp"] = transponder_tmp["code_rate_lp"]
+					transponder["modulation"] = transponder_tmp["modulation"]
+					transponder["transmission_mode"] = transponder_tmp["transmission_mode"]
+					transponder["guard_interval"] = transponder_tmp["guard_interval"]
+					transponder["hierarchy"] = transponder_tmp["hierarchy"]
+					transponder["inversion"] = transponder_tmp["inversion"]
+					transponder["flags"] = transponder_tmp["flags"]
+					transponder["system"] = transponder_tmp["system"]
+					transponder["plpid"] = transponder_tmp["plpid"]
 			elif transponder["dvb_type"] == 'dvbs': # DVB-S
 				transponder["symbol_rate"] = transponder["symbol_rate"] * 100
 				transponder["flags"] = 0
@@ -358,7 +354,7 @@ class DvbScanner():
 			"service_dict_tmp": service_dict_tmp
 		}
 
-	def updateAndReadServicesLCN(self, namespace, transponders, servicehacks, transport_stream_id_list, logical_channel_number_dict, service_dict_tmp, protocol, bouquet_key):
+	def updateAndReadServicesLCN(self, namespace, transponders, servicehacks, transport_stream_id_list, logical_channel_number_dict, service_dict_tmp, protocol):
 		print>>log, "[DvbScanner] Reading services..."
 
 		if self.sdt_other_table_id == 0x00:
@@ -418,8 +414,7 @@ class DvbScanner():
 		dvbreader.close(fd)
 
 		# When no LCN available, create fake LCN numbers (service-id) and use customlcn file for final channel numbers
-		if len(logical_channel_number_dict) == 0:
-			print>>log, "[DvbScanner] LCN protocol but no LCNs found in NIT. Falling back to service ID."
+		if len(logical_channel_number_dict) == 0 and protocol == "nolcn":
 			lcn_temp = {}
 			for key in sdt_secions_status:
 				for section_content in sdt_secions_status[key]["content"]:
@@ -451,7 +446,12 @@ class DvbScanner():
 				service["namespace"] = namespace
 				service["flags"] = 0
 
-				service["number"] = logical_channel_number_dict[key]["logical_channel_number"]
+				if not logical_channel_number_dict:
+					service["number"] = service["logical_channel_number"]
+					if service["service_type"] == 1 and (service["service_group_id"] == 17 or service["service_group_id"] == 21):
+						service["service_type"] = 17
+				else:
+					service["number"] = logical_channel_number_dict[key]["logical_channel_number"]
 
 				if key in tmp_services_dict:
 					tmp_services_dict[key]["numbers"].append(service["number"])
@@ -482,130 +482,6 @@ class DvbScanner():
 			if tpkey not in transponders:
 				continue
 
-
-			transponders[tpkey]["services"][service["service_id"]] = service
-			service_extra_count += 1
-
-			if service["service_type"] in DvbScanner.VIDEO_ALLOWED_TYPES or service["service_type"] in DvbScanner.INTERACTIVE_ALLOWED_TYPES:
-				for number in service["numbers"]:
-					if number not in video_services:
-						video_services[number] = service
-			else:
-				for number in service["numbers"]:
-					if number not in radio_services:
-						radio_services[number] = service
-
-		print>>log, "[DvbScanner] %d valid services" % service_extra_count
-		return {
-			"video": video_services,
-			"radio": radio_services
-		}
-
-	def updateAndReadServicesVMUK(self, namespace, transponders, servicehacks, transport_stream_id_list, service_dict_tmp, bouquet_key):
-		print>>log, "[DvbScanner] Reading services..."
-
-		if self.sdt_other_table_id == 0x00:
-			mask = 0xff
-		else:
-			mask = self.sdt_current_table_id ^ self.sdt_other_table_id ^ 0xff
-
-		fd = dvbreader.open(self.demuxer_device, self.sdt_pid, self.sdt_current_table_id, mask, self.frontend)
-		if fd < 0:
-			print>>log, "[DvbScanner] Cannot open the demuxer"
-			return None
-
-		sdt_secions_status = {}
-		for transport_stream_id in transport_stream_id_list:
-			sdt_secions_status[transport_stream_id] = {}
-			sdt_secions_status[transport_stream_id]["section_version"] = -1
-			sdt_secions_status[transport_stream_id]["sections_read"] = []
-			sdt_secions_status[transport_stream_id]["sections_count"] = 0
-			sdt_secions_status[transport_stream_id]["content"] = []
-
-		timeout = datetime.datetime.now()
-		timeout += datetime.timedelta(0, self.SDT_TIMEOUT)
-		while True:
-			if datetime.datetime.now() > timeout:
-				print>>log, "[DvbScanner] Timed out"
-				break
-
-			section = dvbreader.read_sdt(fd, self.sdt_current_table_id, self.sdt_other_table_id)
-			if section is None:
-				time.sleep(0.1)	# no data.. so we wait a bit
-				continue
-
-			if section["header"]["table_id"] == self.sdt_current_table_id or section["header"]["table_id"] == self.sdt_other_table_id:
-				if section["header"]["transport_stream_id"] not in transport_stream_id_list:
-					continue
-
-				transport_stream_id = section["header"]["transport_stream_id"]
-				if section["header"]["version_number"] != sdt_secions_status[transport_stream_id]["section_version"]:
-					sdt_secions_status[transport_stream_id]["section_version"] = section["header"]["version_number"]
-					sdt_secions_status[transport_stream_id]["sections_read"] = []
-					sdt_secions_status[transport_stream_id]["content"] = []
-					sdt_secions_status[transport_stream_id]["sections_count"] = section["header"]["last_section_number"] + 1
-
-				if section["header"]["section_number"] not in sdt_secions_status[transport_stream_id]["sections_read"]:
-					sdt_secions_status[transport_stream_id]["sections_read"].append(section["header"]["section_number"])
-					sdt_secions_status[transport_stream_id]["content"] += section["content"]
-
-					if len(sdt_secions_status[transport_stream_id]["sections_read"]) == sdt_secions_status[transport_stream_id]["sections_count"]:
-						transport_stream_id_list.remove(transport_stream_id)
-
-			if len(transport_stream_id_list) == 0:
-				break
-
-		if len(transport_stream_id_list) > 0:
-			print>>log, "[DvbScanner] Cannot fetch SDT for the following transport_stream_id list: ", transport_stream_id_list
-
-		dvbreader.close(fd)
-
-		service_count = 0
-		tmp_services_dict = {}
-		for key in sdt_secions_status:
-			for section in sdt_secions_status[key]["content"]:
-				service = section
-
-				key = "%x:%x:%x" % (service["transport_stream_id"], service["original_network_id"], service["service_id"])
-
-				if service_dict_tmp and key not in service_dict_tmp:
-					continue
-
-				service["namespace"] = namespace
-				service["flags"] = 0
-
-				service["number"] = service["logical_channel_number"]
-				if service["service_type"] == 1 and (service["service_group_id"] == 17 or service["service_group_id"] == 21):
-					service["service_type"] = 17
-
-				if key in tmp_services_dict:
-					tmp_services_dict[key]["numbers"].append(service["number"])
-				else:
-					service["numbers"] = [service["number"]]
-					tmp_services_dict[key] = service
-
-				service_count += 1
-
-		print>>log, "[DvbScanner] Read %d services" % service_count
-
-		video_services = {}
-		radio_services = {}
-
-		service_extra_count = 0
-
-		for key in self.LCN_order(tmp_services_dict):
-			service = tmp_services_dict[key]
-
-			if len(servicehacks) > 0:
-				skip = False
-				exec(servicehacks)
-
-				if skip:
-					continue
-
-			tpkey = "%x:%x:%x" % (service["namespace"], service["transport_stream_id"], service["original_network_id"])
-			if tpkey not in transponders:
-				continue
 
 			transponders[tpkey]["services"][service["service_id"]] = service
 			service_extra_count += 1
@@ -780,9 +656,6 @@ class DvbScanner():
 
 		timeout = datetime.datetime.now()
 		timeout += datetime.timedelta(0, self.TIMEOUT_SEC)
-		transport_stream_id_list = []
-		extraservices = config.autobouquetsmaker.level.value == "expert" and config.autobouquetsmaker.showextraservices.value
-		extra_channel_id_dict = {}
 		while True:
 			if datetime.datetime.now() > timeout:
 				print>>log, "[DvbScanner] Timed out"
@@ -795,14 +668,6 @@ class DvbScanner():
 
 			if section["header"]["table_id"] == self.bat_table_id:
 				if section["header"]["bouquet_id"] != bouquet_id:
-					if extraservices:
-						for content_tmp in section["content"]:
-							if content_tmp["descriptor_tag"] == 0xd3 and content_tmp["transport_stream_id"] not in transport_stream_id_list:
-								transport_stream_id_list.append(content_tmp["transport_stream_id"])
-							if content_tmp["descriptor_tag"] == 0xb1:
-								key = "%x:%x:%x" % (content_tmp["transport_stream_id"], content_tmp["original_network_id"], content_tmp["service_id"])
-								if key not in extra_channel_id_dict:
-									extra_channel_id_dict[key] = content_tmp["channel_id"]
 					continue
 
 				if section["header"]["version_number"] != bat_section_version:
@@ -821,6 +686,7 @@ class DvbScanner():
 		dvbreader.close(fd)
 
 		service_count = 0
+		transport_stream_id_list = []
 		tmp_services_dict = {}
 		for service in bat_content:
 			if service["descriptor_tag"] != 0xb1:
@@ -832,10 +698,7 @@ class DvbScanner():
 			if service["transport_stream_id"] not in transport_stream_id_list:
 				transport_stream_id_list.append(service["transport_stream_id"])
 
-			key = "%x:%x:%x" % (service["transport_stream_id"], service["original_network_id"], service["service_id"])
 			if service["region_id"] != region_id and service["region_id"] != 0xff:
-				if extraservices and key not in extra_channel_id_dict:
-					extra_channel_id_dict[key] = service["channel_id"]
 				continue
 
 			if service["service_type"] == 0x05:
@@ -847,6 +710,7 @@ class DvbScanner():
 			service["namespace"] = namespace
 			service["flags"] = 0
 
+			key = "%x:%x:%x" % (service["transport_stream_id"], service["original_network_id"], service["service_id"])
 			if key in tmp_services_dict:
 				tmp_services_dict[key]["numbers"].append(service["number"])
 			else:
@@ -890,19 +754,10 @@ class DvbScanner():
 				continue
 
 			if section["header"]["table_id"] == self.sdt_current_table_id or section["header"]["table_id"] == self.sdt_other_table_id:
-				transport_stream_id = section["header"]["transport_stream_id"]
-
 				if section["header"]["transport_stream_id"] not in transport_stream_id_list:
-					if extraservices: # this is only needed for extra services (channels without LCN) to collect their TSIDs from SDT if not in BAT.
-						sdt_secions_status[transport_stream_id] = {}
-						sdt_secions_status[transport_stream_id]["section_version"] = -1
-						sdt_secions_status[transport_stream_id]["sections_read"] = []
-						sdt_secions_status[transport_stream_id]["sections_count"] = 0
-						sdt_secions_status[transport_stream_id]["content"] = []
-						transport_stream_id_list.append(transport_stream_id)
-					else:
-						continue
+					continue
 
+				transport_stream_id = section["header"]["transport_stream_id"]
 				if section["header"]["version_number"] != sdt_secions_status[transport_stream_id]["section_version"]:
 					sdt_secions_status[transport_stream_id]["section_version"] = section["header"]["version_number"]
 					sdt_secions_status[transport_stream_id]["sections_read"] = []
@@ -931,9 +786,7 @@ class DvbScanner():
 				srvkey = "%x:%x:%x" % (section["transport_stream_id"], section["original_network_id"], section["service_id"])
 
 				if srvkey not in tmp_services_dict:
-					if extraservices:
-						if srvkey in extra_channel_id_dict:
-							section["channel_id"] = extra_channel_id_dict[srvkey]
+					if config.autobouquetsmaker.showextraservices.value:
 						extras.append(section)
 					continue
 
@@ -1001,8 +854,6 @@ class DvbScanner():
 
 		timeout = datetime.datetime.now()
 		timeout += datetime.timedelta(0, self.TIMEOUT_SEC)
-		transport_stream_id_list = []
-		extraservices = config.autobouquetsmaker.level.value == "expert" and config.autobouquetsmaker.showextraservices.value
 		while True:
 			if datetime.datetime.now() > timeout:
 				print>>log, "[DvbScanner] Timed out"
@@ -1015,10 +866,6 @@ class DvbScanner():
 
 			if section["header"]["table_id"] == self.bat_table_id:
 				if section["header"]["bouquet_id"] != bouquet_id:
-					if extraservices:
-						for content_tmp in section["content"]:
-							if content_tmp["descriptor_tag"] == 0xd3 and content_tmp["transport_stream_id"] not in transport_stream_id_list:
-								transport_stream_id_list.append(content_tmp["transport_stream_id"])
 					continue
 
 				if section["header"]["version_number"] != bat_section_version:
@@ -1037,6 +884,7 @@ class DvbScanner():
 		dvbreader.close(fd)
 
 		service_count = 0
+		transport_stream_id_list = []
 		tmp_services_dict = {}
 
 		for service in bat_content:
@@ -1147,19 +995,10 @@ class DvbScanner():
 				continue
 
 			if section["header"]["table_id"] == self.sdt_current_table_id or section["header"]["table_id"] == self.sdt_other_table_id:
-				transport_stream_id = section["header"]["transport_stream_id"]
-
 				if section["header"]["transport_stream_id"] not in transport_stream_id_list:
-					if extraservices: # this is only needed for extra services (channels without LCN) to collect their TSIDs from SDT if not in BAT.
-						sdt_secions_status[transport_stream_id] = {}
-						sdt_secions_status[transport_stream_id]["section_version"] = -1
-						sdt_secions_status[transport_stream_id]["sections_read"] = []
-						sdt_secions_status[transport_stream_id]["sections_count"] = 0
-						sdt_secions_status[transport_stream_id]["content"] = []
-						transport_stream_id_list.append(transport_stream_id)
-					else:
-						continue
+					continue
 
+				transport_stream_id = section["header"]["transport_stream_id"]
 				if section["header"]["version_number"] != sdt_secions_status[transport_stream_id]["section_version"]:
 					sdt_secions_status[transport_stream_id]["section_version"] = section["header"]["version_number"]
 					sdt_secions_status[transport_stream_id]["sections_read"] = []
@@ -1188,7 +1027,7 @@ class DvbScanner():
 				srvkey = "%x:%x:%x" % (section["transport_stream_id"], section["original_network_id"], section["service_id"])
 
 				if srvkey not in tmp_services_dict:
-					if extraservices:
+					if config.autobouquetsmaker.showextraservices.value:
 						extras.append(section)
 					continue
 
@@ -1262,7 +1101,7 @@ class DvbScanner():
 			sort_list = []
 			i = 0
 			for service in extras:
-				if (service["service_type"] in DvbScanner.VIDEO_ALLOWED_TYPES or service["service_type"] in DvbScanner.INTERACTIVE_ALLOWED_TYPES) and (allow_encrypted or service["free_ca"] == 0):
+				if service["service_type"] in DvbScanner.VIDEO_ALLOWED_TYPES and (allow_encrypted or service["free_ca"] == 0):
 					# sort flat, alphabetic before numbers
 					sort_list.append((i, re.sub('^(?![a-z])', 'zzzzz', service['service_name'].lower())))
 				i += 1
@@ -1272,8 +1111,7 @@ class DvbScanner():
 					break
 				LCNs.append(current_lcn)
 				service = extras[item[0]]
-				if "channel_id" not in service:
-					service["channel_id"] = 0
+				srvkey = "%x:%x:%x" % (service["transport_stream_id"], service["original_network_id"], service["service_id"])
 				new_service = {
 					'region_id': 255,
 					'free_ca': service["free_ca"],
@@ -1288,7 +1126,7 @@ class DvbScanner():
 					'descriptor_tag': 177,
 					'transport_stream_id': service["transport_stream_id"],
 					'provider_name': service["provider_name"],
-					'channel_id': service["channel_id"]
+					'channel_id': 0
 				}
 				srvkey = "%x:%x:%x" % (service["transport_stream_id"], service["original_network_id"], service["service_id"])
 				tmp_services_dict[srvkey] = new_service

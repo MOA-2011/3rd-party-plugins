@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: enigma2-oe-alliance-plugins 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-08-06 11:58+0900\n"
+"POT-Creation-Date: 2013-12-14 19:35+0100\n"
 "PO-Revision-Date: 2013-12-16 08:25+0100\n"
 "Last-Translator: Rob van der Does <robvddoes@gmail.com>\n"
 "Language-Team: CÜNEYT OCAKLILAR <ocaklilar@gmail.com>\n"
@@ -32,9 +32,6 @@ msgstr "Buketlere sağlayıcı öneki ekle"
 msgid "Allows you to set a schedule to perform a scan "
 msgstr "Taramayı programa bağlamanızı sağlar"
 
-msgid "Are you sure you want to remove all bouquets created by ABM?"
-msgstr ""
-
 msgid "AutoBouquetsMaker"
 msgstr "Oto Buket Yapıcı"
 
@@ -52,12 +49,6 @@ msgstr "Oto Buket Yapıcı Günlük"
 
 msgid "AutoBouquetsMaker Providers"
 msgstr "Oto Buket Yapıcı Sağlayıcılar"
-
-msgid "AutoBouquetsMaker Scanner"
-msgstr ""
-
-msgid "Bottom"
-msgstr ""
 
 msgid "Bouquets order"
 msgstr "Buket düzeni"
@@ -77,23 +68,11 @@ msgstr "Yapılandır"
 msgid "Daily"
 msgstr "Günlük"
 
-msgid "Delete bouquets"
-msgstr ""
-
-msgid "FTA only"
-msgstr ""
-
 msgid "Hide sections"
 msgstr "Bölümleri gizle"
 
-msgid "If a service is carried on a satellite that is not configured, 'yes' means the channel will not appear in the channel list, 'no' means the channel will show in the channel list but be greyed out and not be accessible."
-msgstr ""
-
-msgid "Include 'not indexed' channels"
-msgstr ""
-
-msgid "Keep all non-ABM bouquets"
-msgstr ""
+msgid "Keep all bouquets"
+msgstr "Tüm buketleri tut"
 
 msgid "Keep bouquets"
 msgstr "Buketleri tut"
@@ -106,9 +85,6 @@ msgstr "Yukarı çık"
 
 msgid "OK"
 msgstr "Tamam"
-
-msgid "Place bouquets at"
-msgstr ""
 
 msgid "Please wait..."
 msgstr "Lütfen bekleyin..."
@@ -146,14 +122,8 @@ msgstr "Uzantılarda göster"
 msgid "Show log"
 msgstr "Günlük göster"
 
-msgid "Skip services on not configured sats"
-msgstr ""
-
 msgid "Start scan"
 msgstr "Taramaya başla"
-
-msgid "This affects all bouquets. Select 'no' to scan in all services. Select 'yes' to skip encrypted ones."
-msgstr ""
 
 msgid "This option allows you to choose what region of the country you live in, so it populates the correct channels for your region."
 msgstr "Bu seçenekte ülkenin hangi bölgesinde yaşadığınızı belirtin ki,bölgenizin doğru kanalları toplansın."
@@ -164,12 +134,6 @@ msgstr "Bu seçenek şimdi seçtiğiniz sağlayıcıyı etkinleştirir."
 msgid "This option has several choices \"Yes\", (create a bouquet with all the channels in it), \"Yes HD only\", (will group all HD channels into this bouquet), \"Custom\", (allows you to select your own bouquet), \"No\", (do not use a main bouquet)"
 msgstr "Bu seçenek çok şıklı: \"Evet\", (bütün kanalları barındıran bir buket yarat), \"ssdece HD evet\", (bu bukette tüm HD kanallar gruplanacak),\"Özel\", (buketinizi kendiniz berirlersiniz), \"Hayır\", (bir ana buket kullanmayın)"
 
-msgid "This option will alow you choose where to place the created bouquets."
-msgstr ""
-
-msgid "This option will create a FreeToAir High Definition bouquet, it will group all HD channels into this bouquet."
-msgstr ""
-
 msgid "This option will create a FreeToAir bouquet, it will group all none encrypted channels into this bouquet."
 msgstr "Bu seçenek tüm şifresiz kanalları toplayacak bir buket yaratacak."
 
@@ -179,8 +143,8 @@ msgstr "Bu seçenek, tüm Hd kanalların bir bukette toplanmasını sağlayacak.
 msgid "This option will create bouquets for each type of channel, ie Entertainment, Movies, Documentary."
 msgstr "Bu seçenek her kanal tipi için ayrı buket yaratacak, yani Eğlence, Filmler, Belgeseller."
 
-msgid "This option will prepend the provider name to bouquet name."
-msgstr ""
+msgid "This option will prepend the provider name to bouquet name "
+msgstr "Bu seçenek sağlayıcı adını buket adının başına ekliyecek"
 
 msgid "This option will swap SD versions of channels with HD versions. (ie 101 BBC One, 103 ITV, 104 Channel Four, 105 Channel Five)"
 msgstr "Bu seçenek SD kanalları HD olanlarla değiştirecek."
@@ -188,17 +152,11 @@ msgstr "Bu seçenek SD kanalları HD olanlarla değiştirecek."
 msgid "Time of scan to start"
 msgstr "Tarama başlama saati"
 
-msgid "Top"
-msgstr ""
-
 msgid "Weekly"
 msgstr "Haftalık"
 
-msgid "When a search finds extra channels that do not have an allocated channel number, 'yes' will add these at the end of the channel list, and 'no' means these will not be included."
-msgstr ""
-
-msgid "When disabled this will enable the 'Keep bouquets' option in the main menu, allowing you to hide some 'existing' bouquets."
-msgstr ""
+msgid "When disabled this will enable the 'Keep bouquets' in the main menu, allowing you to hide some 'existing' bouquets."
+msgstr "Kapatılınca, ana menüde 'Buketleri tut' etkinleşerek,bazı buketleri gizlemenizi sağlayacak."
 
 msgid "When enable allow you start a scan from the extensions list."
 msgstr "Etkinleşince uzantılar listesinden tarama başlatmanızı sağlayacak."
@@ -211,9 +169,6 @@ msgstr "Özel ana buket"
 
 msgid "expert"
 msgstr "uzman"
-
-msgid "generate FTA HD bouquet"
-msgstr ""
 
 msgid "generate FTA bouquet"
 msgstr "Şifresiz buketi üret"
@@ -242,17 +197,6 @@ msgstr "evet"
 msgid "yes (custom)"
 msgstr "evet (özel)"
 
-msgid "yes (only FTA HD)"
-msgstr ""
-
 msgid "yes (only HD)"
 msgstr "evet (sadece HD)"
 
-#~ msgid "Keep all bouquets"
-#~ msgstr "Tüm buketleri tut"
-
-#~ msgid "This option will prepend the provider name to bouquet name "
-#~ msgstr "Bu seçenek sağlayıcı adını buket adının başına ekliyecek"
-
-#~ msgid "When disabled this will enable the 'Keep bouquets' in the main menu, allowing you to hide some 'existing' bouquets."
-#~ msgstr "Kapatılınca, ana menüde 'Buketleri tut' etkinleşerek,bazı buketleri gizlemenizi sağlayacak."

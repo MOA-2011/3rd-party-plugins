@@ -104,7 +104,7 @@ class AutoBouquetsMaker_Ordering(Screen):
 			if provider_config.getProvider() not in self.providers:
 				continue
 				
-			providers = (str(self.providers[provider_config.getProvider()]["name"]), provider_config.getProvider())
+			providers = (provider_config.getProvider(), str(self.providers[provider_config.getProvider()]["name"]))
 			self.list.append(providers)
 			self.providers_configs[provider_config.getProvider()] = provider_config
 			
@@ -171,7 +171,7 @@ class AutoBouquetsMaker_Ordering(Screen):
 	def keySave(self):
 		config_string = ""
 		for provider in self.list:
-			provider = provider[1]
+			provider = provider[0]
 			if len(config_string) > 0:
 				config_string += "|"
 				
