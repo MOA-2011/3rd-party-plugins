@@ -55,17 +55,6 @@ AutoBouquetsMaker/src/Makefile
 AutoBouquetsMaker/src/scanner/Makefile
 AutoBouquetsMaker/custom/Makefile
 
-Blindscan/Makefile
-Blindscan/po/Makefile
-Blindscan/src/Makefile
-Blindscan/meta/Makefile
-
-OnDemand/Makefile
-OnDemand/src/Makefile
-OnDemand/src/icons/Makefile
-OnDemand/meta/Makefile
-OnDemand/po/Makefile
-
 RemoteChannelStreamConverter/Makefile
 RemoteChannelStreamConverter/po/Makefile
 RemoteChannelStreamConverter/src/Makefile

@@ -1,3 +1,3 @@
 ACLOCAL_AMFLAGS = -I m4
 
-SUBDIRS = AutoBouquetsMaker OnDemand RemoteChannelStreamConverter Blindscan
+SUBDIRS = AutoBouquetsMaker RemoteChannelStreamConverter
